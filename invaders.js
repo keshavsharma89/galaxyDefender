@@ -7,11 +7,14 @@ function preload() {
     game.load.image('enemyBullet', 'assets/enemy-bullet.png');
     game.load.image('bullet195', 'assets/bullet195.png');
     game.load.spritesheet('invader', 'assets/invader32x32x4.png', 32, 32);
-    game.load.image('ship', 'assets/xenon2_ship.png');
+    game.load.image('ship', 'assets/thrust_ship.png');
     game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
     game.load.image('starfield', 'assets/starfield.jpg');
     game.load.image('background', 'assets/background2.png');
     game.load.image('powerup', 'assets/bullet56.png');
+    game.load.audio('blast', 'assets/SoundEffects/blaster.mp3');
+    game.load.audio('playerDeath', 'assets/SoundEffects/menu_select.mp3');
+    game.load.audio('powerGain', 'assets/SoundEffects/pickup.WAV');
 
 }
 
@@ -32,6 +35,9 @@ var firingTimer = 0;
 var stateText;
 var livingEnemies = [];
 var powerUps;
+var blaster;
+var playerDeath;
+var powerGain;
 
 function create() {
 
@@ -41,6 +47,11 @@ function create() {
 
     //  The scrolling starfield background
     starfield = game.add.tileSprite(0, 0, 800, 600, 'starfield');
+    // added audio
+
+    blaster = game.add.audio('blast');
+    playerDeath = game.add.audio('playerDeath');
+    powerGain = game.add.audio('powerGain');
 
     //  The player ship
     player = game.add.sprite(400, 500, 'ship');
@@ -150,6 +161,7 @@ function update() {
         if (fireButton.isDown)
         {
             weapon.fire();
+            blaster.play();
         }
 
         if (game.time.now > firingTimer)
@@ -223,6 +235,7 @@ function powerCollisionHandler (player, powerUp) {
 
     //  When a powerUp hits player we change bullet
     powerUp.kill();
+    powerGain.play();
 
     weapon = game.add.weapon(40, 'bullet195');
     createWeapon();
@@ -248,6 +261,7 @@ function enemyHitsPlayer (player,bullet) {
     if (lives.countLiving() < 1)
     {
         player.kill();
+        playerDeath.play();
         enemyBullets.callAll('kill');
 
         stateText.text=" GAME OVER \n Click to restart";
