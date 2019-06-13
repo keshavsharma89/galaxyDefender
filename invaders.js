@@ -32,6 +32,8 @@ var livingEnemies = [];
 
 function create() {
 
+    game.world.setBounds(0, 0, 800, 600);
+
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     //  The scrolling starfield background
