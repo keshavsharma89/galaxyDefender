@@ -29,7 +29,8 @@ var starfield;
 var score = 0;
 var scoreString = '';
 var scoreText;
-var lives;
+var playerLife = 85;
+var powerLevelText;
 var enemyBullet;
 var firingTimer = 0;
 var stateText;
@@ -40,9 +41,7 @@ var playerDeath;
 var powerGain;
 
 function create() {
-
     game.world.setBounds(0, 0, 800, 600);
-
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     //  The scrolling starfield background
@@ -62,8 +61,6 @@ function create() {
     weapon = game.add.weapon(40, 'bullet');
     createWeapon();
 
-
-
     // The enemy's bullets
     enemyBullets = game.add.group();
     enemyBullets.enableBody = true;
@@ -79,31 +76,24 @@ function create() {
     aliens = game.add.group();
     aliens.enableBody = true;
     aliens.physicsBodyType = Phaser.Physics.ARCADE;
-
     game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
 
 
     powerUps = addPowerUp(game);
     //  The score
     scoreString = 'Score : ';
-    scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#fff' });
+    scoreText = game.add.text(1, 1, scoreString + score, { font: '34px Arial', fill: '#fff' });
 
-    //  Lives
-    lives = game.add.group();
-    // game.add.text(game.world.width - 100, 10, 'Lives : ', { font: '34px Arial', fill: '#fff' });
+    powerLevelText=game.add.text(1, 565, '', { font: '34px Arial', fill: '#fff' });
+    renderPowerLevel();
+
+
 
     //  Text
     stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
     stateText.anchor.setTo(0.5, 0.5);
     stateText.visible = false;
 
-    // for (var i = 0; i < 3; i++)
-    // {
-    //     var ship = lives.create(game.world.width - 100 + (30 * i), 60, 'ship');
-    //     ship.anchor.setTo(0.5, 0.5);
-    //     ship.angle = 90;
-    //     ship.alpha = 0.4;
-    // }
 
     //  An explosion pool
     explosions = game.add.group();
@@ -184,15 +174,15 @@ function update() {
 
 function render() {
 
-    // for (var i = 0; i < aliens.length; i++)
-    // {
-    //     game.debug.body(aliens.children[i]);
-    // }
-
 }
 
-
-
+function renderPowerLevel() {
+  powerLevel='';
+  for(i=0; i<playerLife ; i++){
+    powerLevel +='I'
+  }
+  powerLevelText.text = powerLevel;
+}
 
 function collisionHandler (bullet, alien) {
 
@@ -228,6 +218,16 @@ function collisionHandler (bullet, alien) {
 
 function enemyPlayerCollision(player, enemy) {
   enemy.kill();
+
+  playerLife -= 10
+  renderPowerLevel()
+
+  //  And create an explosion :)
+  var explosion = explosions.getFirstExists(false);
+  explosion.reset(player.body.x, player.body.y);
+  explosion.play('kaboom', 30, false, true);
+
+  isPlayerDead(player);
 }
 
 
@@ -244,33 +244,34 @@ function powerCollisionHandler (player, powerUp) {
 function enemyHitsPlayer (player,bullet) {
 
     bullet.kill();
-
-    live = lives.getFirstAlive();
-
-    if (live)
-    {
-        live.kill();
-    }
+    playerLife -= 20
+    renderPowerLevel()
 
     //  And create an explosion :)
     var explosion = explosions.getFirstExists(false);
     explosion.reset(player.body.x, player.body.y);
     explosion.play('kaboom', 30, false, true);
 
-    // When the player dies
-    if (lives.countLiving() < 1)
-    {
-        player.kill();
-        playerDeath.play();
-        enemyBullets.callAll('kill');
+    isPlayerDead(player);
 
-        stateText.text=" GAME OVER \n Click to restart";
-        stateText.visible = true;
 
-        //the "click to restart" handler
-        game.input.onTap.addOnce(restart,this);
-    }
 
+}
+
+function isPlayerDead(player){
+  // When the player dies
+  playerDeath.play();
+  if (playerLife < 1)
+  {
+      player.kill();
+      enemyBullets.callAll('kill');
+
+      stateText.text=" GAME OVER \n Click to restart";
+      stateText.visible = true;
+
+      //the "click to restart" handler
+      game.input.onTap.addOnce(restart,this);
+  }
 }
 
 function enemyFires () {
@@ -316,7 +317,10 @@ function restart () {
     //  A new level starts
 
     //resets the life count
-    lives.callAll('revive');
+    playerLife=85;
+    renderPowerLevel()
+
+
     //  And brings the aliens back from the dead :)
     aliens.removeAll();
     createAliens();
