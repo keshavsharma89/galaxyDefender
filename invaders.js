@@ -26,7 +26,8 @@ var starfield;
 var score = 0;
 var scoreString = '';
 var scoreText;
-var playerLife = 100;
+var playerLife = 85;
+var powerLevelText;
 var enemyBullet;
 var firingTimer = 0;
 var stateText;
@@ -34,9 +35,7 @@ var livingEnemies = [];
 var powerUps;
 
 function create() {
-
     game.world.setBounds(0, 0, 800, 600);
-
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     //  The scrolling starfield background
@@ -50,8 +49,6 @@ function create() {
     //  Creates 30 bullets, using the 'bullet' graphic
     weapon = game.add.weapon(40, 'bullet');
     createWeapon();
-
-
 
     // The enemy's bullets
     enemyBullets = game.add.group();
@@ -68,14 +65,17 @@ function create() {
     aliens = game.add.group();
     aliens.enableBody = true;
     aliens.physicsBodyType = Phaser.Physics.ARCADE;
-
     game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
 
 
     powerUps = addPowerUp(game);
     //  The score
     scoreString = 'Score : ';
-    scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#fff' });
+    scoreText = game.add.text(1, 1, scoreString + score, { font: '34px Arial', fill: '#fff' });
+
+    powerLevelText=game.add.text(1, 565, '', { font: '34px Arial', fill: '#fff' });
+    renderPowerLevel();
+
 
 
     //  Text
@@ -162,15 +162,15 @@ function update() {
 
 function render() {
 
-    // for (var i = 0; i < aliens.length; i++)
-    // {
-    //     game.debug.body(aliens.children[i]);
-    // }
-
 }
 
-
-
+function renderPowerLevel() {
+  powerLevel='';
+  for(i=0; i<playerLife ; i++){
+    powerLevel +='I'
+  }
+  powerLevelText.text = powerLevel;
+}
 
 function collisionHandler (bullet, alien) {
 
@@ -206,6 +206,16 @@ function collisionHandler (bullet, alien) {
 
 function enemyPlayerCollision(player, enemy) {
   enemy.kill();
+
+  playerLife -= 10
+  renderPowerLevel()
+
+  //  And create an explosion :)
+  var explosion = explosions.getFirstExists(false);
+  explosion.reset(player.body.x, player.body.y);
+  explosion.play('kaboom', 30, false, true);
+
+  isPlayerDead(player);
 }
 
 
@@ -221,26 +231,33 @@ function powerCollisionHandler (player, powerUp) {
 function enemyHitsPlayer (player,bullet) {
 
     bullet.kill();
-    playerLife = playerLife - 25
+    playerLife -= 20
+    renderPowerLevel()
 
     //  And create an explosion :)
     var explosion = explosions.getFirstExists(false);
     explosion.reset(player.body.x, player.body.y);
     explosion.play('kaboom', 30, false, true);
 
-    // When the player dies
-    if (playerLife < 1)
-    {
-        player.kill();
-        enemyBullets.callAll('kill');
+    isPlayerDead(player);
 
-        stateText.text=" GAME OVER \n Click to restart";
-        stateText.visible = true;
 
-        //the "click to restart" handler
-        game.input.onTap.addOnce(restart,this);
-    }
 
+}
+
+function isPlayerDead(player){
+  // When the player dies
+  if (playerLife < 1)
+  {
+      player.kill();
+      enemyBullets.callAll('kill');
+
+      stateText.text=" GAME OVER \n Click to restart";
+      stateText.visible = true;
+
+      //the "click to restart" handler
+      game.input.onTap.addOnce(restart,this);
+  }
 }
 
 function enemyFires () {
@@ -286,7 +303,8 @@ function restart () {
     //  A new level starts
 
     //resets the life count
-    playerLife=100;
+    playerLife=85;
+    renderPowerLevel()
 
 
     //  And brings the aliens back from the dead :)
