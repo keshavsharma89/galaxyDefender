@@ -24,7 +24,7 @@ var starfield;
 var score = 0;
 var scoreString = '';
 var scoreText;
-var lives;
+var playerLife = 100;
 var enemyBullet;
 var firingTimer = 0;
 var stateText;
@@ -73,22 +73,12 @@ function create() {
     scoreString = 'Score : ';
     scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#fff' });
 
-    //  Lives
-    lives = game.add.group();
-    // game.add.text(game.world.width - 100, 10, 'Lives : ', { font: '34px Arial', fill: '#fff' });
 
     //  Text
     stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
     stateText.anchor.setTo(0.5, 0.5);
     stateText.visible = false;
 
-    // for (var i = 0; i < 3; i++)
-    // {
-    //     var ship = lives.create(game.world.width - 100 + (30 * i), 60, 'ship');
-    //     ship.anchor.setTo(0.5, 0.5);
-    //     ship.angle = 90;
-    //     ship.alpha = 0.4;
-    // }
 
     //  An explosion pool
     explosions = game.add.group();
@@ -185,13 +175,7 @@ function collisionHandler (bullet, alien) {
 function enemyHitsPlayer (player,bullet) {
 
     bullet.kill();
-
-    live = lives.getFirstAlive();
-
-    if (live)
-    {
-        live.kill();
-    }
+    playerLife = playerLife - 25
 
     //  And create an explosion :)
     var explosion = explosions.getFirstExists(false);
@@ -199,7 +183,7 @@ function enemyHitsPlayer (player,bullet) {
     explosion.play('kaboom', 30, false, true);
 
     // When the player dies
-    if (lives.countLiving() < 1)
+    if (playerLife < 1)
     {
         player.kill();
         enemyBullets.callAll('kill');
@@ -274,7 +258,9 @@ function restart () {
     //  A new level starts
 
     //resets the life count
-    lives.callAll('revive');
+    playerLife=100;
+
+
     //  And brings the aliens back from the dead :)
     aliens.removeAll();
     createAliens();
