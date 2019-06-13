@@ -1,11 +1,10 @@
 function createShip () {
-player = game.add.sprite(400, 500, 'ship');
-player.anchor.setTo(0.5, 0.5);
-game.physics.enable(player, Phaser.Physics.ARCADE);
-player.body.collideWorldBounds = true;
-player.body.bounce.set(0.8);
-player.body.allowRotation = true;
-player.body.immovable = true;
+  player.anchor.setTo(0.5, 0.5);
+  game.physics.enable(player, Phaser.Physics.ARCADE);
+  player.body.collideWorldBounds = true;
+  player.body.bounce.set(0.8);
+  player.body.allowRotation = true;
+  player.body.immovable = true;
 }
 
 function handleShipEvents () {

@@ -3,7 +3,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: p
 
 function preload() {
 
-    game.load.image('bullet', 'assets/bullet.png');
+    game.load.spritesheet('bullet', 'assets/rgblaser.png', 4, 4);
     game.load.image('enemyBullet', 'assets/enemy-bullet.png');
     game.load.spritesheet('invader', 'assets/invader32x32x4.png', 32, 32);
     game.load.image('ship', 'assets/xenon2_ship.png');
@@ -15,7 +15,7 @@ function preload() {
 
 var player;
 var aliens;
-var bullets;
+var weapon;
 var bulletTime = 0;
 var cursors;
 var fireButton;
@@ -39,15 +39,14 @@ function create() {
     //  The scrolling starfield background
     starfield = game.add.tileSprite(0, 0, 800, 600, 'starfield');
 
-    //  Our bullet group
-    bullets = game.add.group();
-    bullets.enableBody = true;
-    bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    bullets.createMultiple(30, 'bullet');
-    bullets.setAll('anchor.x', 0.5);
-    bullets.setAll('anchor.y', 1);
-    bullets.setAll('outOfBoundsKill', true);
-    bullets.setAll('checkWorldBounds', true);
+    //  The player ship
+    player = game.add.sprite(400, 500, 'ship');
+    createShip();
+
+    // weapon as bullets
+    createWeapon();
+
+
 
     // The enemy's bullets
     enemyBullets = game.add.group();
@@ -59,8 +58,6 @@ function create() {
     enemyBullets.setAll('outOfBoundsKill', true);
     enemyBullets.setAll('checkWorldBounds', true);
 
-    //  The hero!
-    createShip();
 
     //  The baddies!
     aliens = game.add.group();
@@ -97,7 +94,7 @@ function create() {
 
     //  And some controls to play the game with
     cursors = game.input.keyboard.createCursorKeys();
-    fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 
 }
 
@@ -128,7 +125,7 @@ function update() {
         //  Firing?
         if (fireButton.isDown)
         {
-            fireBullet();
+            weapon.fire();
         }
 
         if (game.time.now > firingTimer)
@@ -137,7 +134,8 @@ function update() {
         }
 
         //  Run collision
-        game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
+        game.physics.arcade.collide(weapon.bullets, aliens, collisionHandler)
+        game.physics.arcade.overlap(weapon.bullets, enemyBullets, collisionHandler, null, this);
         game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
     }
 
@@ -243,24 +241,6 @@ function enemyFires () {
 
 }
 
-function fireBullet () {
-
-    //  To avoid them being allowed to fire too fast we set a time limit
-    if (game.time.now > bulletTime)
-    {
-        //  Grab the first bullet we can from the pool
-        bullet = bullets.getFirstExists(false);
-
-        if (bullet)
-        {
-            //  And fire it
-            bullet.reset(player.x, player.y + 8);
-            bullet.body.velocity.y = -400;
-            bulletTime = game.time.now + 200;
-        }
-    }
-
-}
 
 function resetBullet (bullet) {
 
