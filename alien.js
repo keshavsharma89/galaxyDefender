@@ -1,6 +1,6 @@
 function createAliens(){
-  for (var x = 0; x < 50; x++){
-    var alien = aliens.create(game.world.randomX, game.rnd.between(0, 100), 'invader');
+  for (var x = 0; x < 10; x++){
+    var alien = aliens.create(game.world.randomX, 0, 'invader');
     game.physics.arcade.enable(alien);
     alien.body.velocity.y = game.rnd.between(25, 100);
     alien.autoCull = true;
