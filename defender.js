@@ -19,7 +19,7 @@ function handleShipEvents () {
   }
   else if (cursors.right.isDown)
   {
-      player.body.angularVelocity = -200;
+      player.body.angularVelocity = 200;
   }
 
   if (cursors.up.isDown)

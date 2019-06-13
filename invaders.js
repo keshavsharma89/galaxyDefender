@@ -70,7 +70,7 @@ function create() {
     aliens.enableBody = true;
     aliens.physicsBodyType = Phaser.Physics.ARCADE;
 
-    createAliens();
+    game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
 
 
     powerUps = addPowerUp(game);
@@ -80,20 +80,20 @@ function create() {
 
     //  Lives
     lives = game.add.group();
-    game.add.text(game.world.width - 100, 10, 'Lives : ', { font: '34px Arial', fill: '#fff' });
+    // game.add.text(game.world.width - 100, 10, 'Lives : ', { font: '34px Arial', fill: '#fff' });
 
     //  Text
     stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
     stateText.anchor.setTo(0.5, 0.5);
     stateText.visible = false;
 
-    for (var i = 0; i < 3; i++)
-    {
-        var ship = lives.create(game.world.width - 100 + (30 * i), 60, 'ship');
-        ship.anchor.setTo(0.5, 0.5);
-        ship.angle = 90;
-        ship.alpha = 0.4;
-    }
+    // for (var i = 0; i < 3; i++)
+    // {
+    //     var ship = lives.create(game.world.width - 100 + (30 * i), 60, 'ship');
+    //     ship.anchor.setTo(0.5, 0.5);
+    //     ship.angle = 90;
+    //     ship.alpha = 0.4;
+    // }
 
     //  An explosion pool
     explosions = game.add.group();
