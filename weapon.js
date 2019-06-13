@@ -1,7 +1,6 @@
 function createWeapon() {
 //  Our bullet group
-//  Creates 30 bullets, using the 'bullet' graphic
-weapon = game.add.weapon(40, 'bullet');
+
 
 //  The 'rgblaser.png' is a Sprite Sheet with 80 frames in it (each 4x4 px in size)
 //  The 3rd argument tells the Weapon Plugin to advance to the next frame each time

@@ -5,11 +5,13 @@ function preload() {
 
     game.load.spritesheet('bullet', 'assets/rgblaser.png', 4, 4);
     game.load.image('enemyBullet', 'assets/enemy-bullet.png');
+    game.load.image('bullet195', 'assets/bullet195.png');
     game.load.spritesheet('invader', 'assets/invader32x32x4.png', 32, 32);
     game.load.image('ship', 'assets/xenon2_ship.png');
     game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
-    game.load.image('starfield', 'assets/starfield.png');
+    game.load.image('starfield', 'assets/starfield.jpg');
     game.load.image('background', 'assets/background2.png');
+    game.load.image('powerup', 'assets/bullet56.png');
 
 }
 
@@ -29,6 +31,7 @@ var enemyBullet;
 var firingTimer = 0;
 var stateText;
 var livingEnemies = [];
+var powerUps;
 
 function create() {
 
@@ -44,6 +47,8 @@ function create() {
     createShip();
 
     // weapon as bullets
+    //  Creates 30 bullets, using the 'bullet' graphic
+    weapon = game.add.weapon(40, 'bullet');
     createWeapon();
 
 
@@ -66,6 +71,8 @@ function create() {
 
     game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
 
+
+    powerUps = addPowerUp(game);
     //  The score
     scoreString = 'Score : ';
     scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#fff' });
@@ -98,6 +105,23 @@ function create() {
 
 }
 
+function addPowerUp(game)
+{
+
+  power_ups = game.add.group();
+   power_ups.enableBody = true;
+
+   for (var i = 0; i < 5; i++)
+   {
+       var s = power_ups.create(game.world.randomX, game.world.randomY, 'powerup');
+       s.name = 'alien' + s;
+       s.body.collideWorldBounds = true;
+       s.body.bounce.setTo(0.8, 0.8);
+       s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
+   }
+
+   return power_ups;
+}
 
 function setupInvader (invader) {
 
@@ -134,9 +158,14 @@ function update() {
         }
 
         //  Run collision
+
         game.physics.arcade.collide(weapon.bullets, aliens, collisionHandler)
         game.physics.arcade.overlap(weapon.bullets, enemyBullets, collisionHandler, null, this);
         game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
+        game.physics.arcade.overlap(powerUps, player, powerCollisionHandler, null, this);
+        game.physics.arcade.overlap(aliens, player, enemyPlayerCollision, null, this);
+
+
     }
 
 }
@@ -149,6 +178,9 @@ function render() {
     // }
 
 }
+
+
+
 
 function collisionHandler (bullet, alien) {
 
@@ -178,6 +210,22 @@ function collisionHandler (bullet, alien) {
         game.input.onTap.addOnce(restart,this);
     }
 
+}
+
+
+
+function enemyPlayerCollision(player, enemy) {
+  enemy.kill();
+}
+
+
+function powerCollisionHandler (player, powerUp) {
+
+    //  When a powerUp hits player we change bullet
+    powerUp.kill();
+
+    weapon = game.add.weapon(40, 'bullet195');
+    createWeapon();
 }
 
 function enemyHitsPlayer (player,bullet) {
