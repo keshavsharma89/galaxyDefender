@@ -3,14 +3,18 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: p
 function preload(){
     game.load.spritesheet('bullet', 'assets/rgblaser.png', 4, 4);
     game.load.image('enemyBullet', 'assets/enemy-bullet.png');
-    game.load.image('bullet195', 'assets/bullet195.png');
+    game.load.image('bulletS', 'assets/bulletS.png');
+    game.load.image('bulletP', 'assets/bulletP.png');
+    game.load.image('bulletX', 'assets/bulletX.png');
+    game.load.image('powerupP', 'assets/powerupP.png');
+    game.load.image('powerupS', 'assets/powerupS.png');
+    game.load.image('powerupX', 'assets/powerupX.png');
     game.load.image('invader', 'assets/shmup-baddie21.png');
     game.load.image('bigInvader', 'assets/bigA.png');
     game.load.image('ship', 'assets/ak46.png');
     game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
     game.load.image('starfield', 'assets/starfield1.png');
     game.load.image('background', 'assets/background2.png');
-    game.load.image('powerup', 'assets/bullet56.png');
     game.load.audio('blast', 'assets/SoundEffects/blaster.mp3');
     game.load.audio('playerDeath', 'assets/SoundEffects/menu_select.mp3');
     game.load.audio('powerGain', 'assets/SoundEffects/pickup.WAV');
@@ -34,7 +38,9 @@ var enemyBullet;
 var firingTimer = 0;
 var stateText;
 var livingEnemies = [];
-var powerUps;
+var powerupS;
+var powerupP;
+var powerupX;
 var blaster;
 var playerDeath;
 var powerGain;
@@ -79,9 +85,18 @@ function create(){
     aliens.physicsBodyType = Phaser.Physics.ARCADE;
     game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
     game.time.events.repeat(Phaser.Timer.SECOND * 20 , 2, createBigAliens, this);
-    powerUps = game.add.group();
-    powerUps.enableBody = true;
-    game.time.events.repeat(Phaser.Timer.SECOND * 10 , 10, addPowerUp, this);
+
+    powerupS = game.add.group();
+    powerupS.enableBody = true;
+    game.time.events.repeat(Phaser.Timer.SECOND * 5 , 10, addPowerupS, this);
+
+    powerupP = game.add.group();
+    powerupP.enableBody = true;
+    game.time.events.repeat(Phaser.Timer.SECOND * 10 , 10, addPowerupP, this);
+
+    powerupX = game.add.group();
+    powerupX.enableBody = true;
+    game.time.events.repeat(Phaser.Timer.SECOND * 15 , 10, addPowerupX, this);
 
 
     //  The score
@@ -105,12 +120,32 @@ function create(){
     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 }
 
-function addPowerUp(){
-       var s = powerUps.create(game.world.randomX, game.world.randomY, 'powerup');
+function addPowerupS(){
+       // var s = powerupS.create(game.world.randomX, game.world.randomY, 'powerupS');
+       var s = powerupS.create(game.world.randomX, 0, 'powerupS');
        s.name = 'alien' + s;
        s.body.collideWorldBounds = false;
        s.body.bounce.setTo(0.8, 0.8);
-       s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
+       // s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
+       // s.body.velocity.setTo(45,90);
+       s.body.velocity.y = game.rnd.between(25, 100);
+       s.events.onOutOfBounds.add(killPowerUp, this);
+
+}
+function addPowerupP(){
+       var s = powerupP.create(game.world.randomX, 0, 'powerupP');
+       s.name = 'alien' + s;
+       s.body.collideWorldBounds = false;
+       s.body.bounce.setTo(0.8, 0.8);
+       s.body.velocity.y = game.rnd.between(25, 100);
+       s.events.onOutOfBounds.add(killPowerUp, this);
+}
+function addPowerupX(){
+       var s = powerupX.create(game.world.randomX, 0, 'powerupX');
+       s.name = 'alien' + s;
+       s.body.collideWorldBounds = false;
+       s.body.bounce.setTo(0.8, 0.8);
+       s.body.velocity.y = game.rnd.between(25, 100);
        s.events.onOutOfBounds.add(killPowerUp, this);
 }
 
@@ -149,7 +184,9 @@ function update(){
         game.physics.arcade.collide(weapon.bullets, aliens, collisionHandler)
         game.physics.arcade.overlap(weapon.bullets, enemyBullets, collisionHandler, null, this);
         game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
-        game.physics.arcade.overlap(powerUps, player, powerCollisionHandler, null, this);
+        game.physics.arcade.overlap(powerupS, player, powerCollisionHandlerS, null, this);
+        game.physics.arcade.overlap(powerupP, player, powerCollisionHandlerP, null, this);
+        game.physics.arcade.overlap(powerupX, player, powerCollisionHandlerX, null, this);
         game.physics.arcade.overlap(aliens, player, enemyPlayerCollision, null, this);
     }
 }
@@ -216,12 +253,28 @@ function enemyPlayerCollision(player, enemy) {
 }
 
 
-function powerCollisionHandler (player, powerUp) {
+function powerCollisionHandlerS (player, powerUp) {
     //  When a powerUp hits player we change bullet
     powerUp.kill();
     powerGain.play();
 
-    weapon = game.add.weapon(40, 'bullet195');
+    weapon = game.add.weapon(40, 'bulletS');
+    createWeapon();
+}
+function powerCollisionHandlerP (player, powerUp) {
+    //  When a powerUp hits player we change bullet
+    powerUp.kill();
+    powerGain.play();
+
+    weapon = game.add.weapon(40, 'bulletP');
+    createWeapon();
+}
+function powerCollisionHandlerX (player, powerUp) {
+    //  When a powerUp hits player we change bullet
+    powerUp.kill();
+    powerGain.play();
+
+    weapon = game.add.weapon(40, 'bulletX');
     createWeapon();
 }
 
