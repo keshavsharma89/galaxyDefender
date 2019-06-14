@@ -18,7 +18,11 @@ weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
 weapon.bulletSpeed = 400;
 
 //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 50ms
-weapon.fireRate = 1;
+weapon.fireRate = 100;
+
+weapon.onFire.add(function(){
+  blaster.play();
+});
 
 //  Wrap bullets around the world bounds to the opposite side
 // weapon.bulletWorldWrap = true;
