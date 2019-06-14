@@ -79,7 +79,13 @@ function create() {
     game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
 
 
-    powerUps = addPowerUp(game);
+
+    powerUps = game.add.group();
+     powerUps.enableBody = true;
+       game.time.events.repeat(Phaser.Timer.SECOND * 10 , 10, addPowerUp, this);
+
+
+
     //  The score
     scoreString = 'Score : ';
     scoreText = game.add.text(1, 1, scoreString + score, { font: '34px Arial', fill: '#fff' });
@@ -106,22 +112,19 @@ function create() {
 
 }
 
-function addPowerUp(game)
+function addPowerUp()
 {
-
-  power_ups = game.add.group();
-   power_ups.enableBody = true;
-
-   for (var i = 0; i < 5; i++)
-   {
-       var s = power_ups.create(game.world.randomX, game.world.randomY, 'powerup');
+       var s = powerUps.create(game.world.randomX, game.world.randomY, 'powerup');
        s.name = 'alien' + s;
-       s.body.collideWorldBounds = true;
+       s.body.collideWorldBounds = false;
        s.body.bounce.setTo(0.8, 0.8);
        s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
-   }
+       s.events.onOutOfBounds.add(killPowerUp, this);
+  
+}
 
-   return power_ups;
+function killPowerUp(p) {
+  p.kill();
 }
 
 function setupInvader (invader) {
