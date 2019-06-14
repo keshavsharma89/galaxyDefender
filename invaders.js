@@ -4,10 +4,11 @@ function preload(){
     game.load.spritesheet('bullet', 'assets/rgblaser.png', 4, 4);
     game.load.image('enemyBullet', 'assets/enemy-bullet.png');
     game.load.image('bullet195', 'assets/bullet195.png');
-    game.load.spritesheet('invader', 'assets/invader32x32x4.png', 32, 32);
-    game.load.image('ship', 'assets/thrust_ship.png');
+    // game.load.spritesheet('invader', 'assets/invader32x32x4.png', 32, 32);
+    game.load.image('invader', 'assets/shmup-baddie21.png');
+    game.load.image('ship', 'assets/ak46.png');
     game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
-    game.load.image('starfield', 'assets/starfield.jpg');
+    game.load.image('starfield', 'assets/starfield1.png');
     game.load.image('background', 'assets/background2.png');
     game.load.image('powerup', 'assets/bullet56.png');
     game.load.audio('blast', 'assets/SoundEffects/blaster.mp3');
