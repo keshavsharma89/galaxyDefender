@@ -163,7 +163,7 @@ function renderPowerLevel(){
   if(playerLife<20){
     powerLevelText.style.fill = '#FF0000';
   }else if (playerLife<50) {
-    powerLevelText.style.fill = '#f6d406';
+    powerLevelText.style.fill = '#e1c102';
   }else {
     powerLevelText.style.fill = '#00FF00';
   }
