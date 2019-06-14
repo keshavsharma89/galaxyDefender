@@ -3,6 +3,9 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: p
 function preload(){
     game.load.spritesheet('bullet', 'assets/rgblaser.png', 4, 4);
     game.load.image('enemyBullet', 'assets/enemy-bullet.png');
+    game.load.image('spaceship', 'assets/spaceship.png');
+    game.load.image('gamename', 'assets/loading_game.png');
+    game.load.audio('loading_audio', 'assets/SoundEffects/music/loading.mp3');
     game.load.image('bulletS', 'assets/bulletS.png');
     game.load.image('bulletP', 'assets/bulletP.png');
     game.load.image('bulletX', 'assets/bulletX.png');
@@ -15,9 +18,10 @@ function preload(){
     game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
     game.load.image('starfield', 'assets/starfield1.png');
     game.load.image('background', 'assets/background2.png');
-    game.load.audio('blast', 'assets/SoundEffects/blaster.mp3');
+    game.load.audio('blast', 'assets/SoundEffects/orangeshell.ogg');
     game.load.audio('playerDeath', 'assets/SoundEffects/menu_select.mp3');
-    game.load.audio('powerGain', 'assets/SoundEffects/pickup.WAV');
+    game.load.audio('powerGain', 'assets/SoundEffects/pickup.wav');
+    game.load.audio('powerDown', 'assets/SoundEffects/powerdown.ogg');
     game.load.audio('bgm1', 'assets/SoundEffects/music/bgm1.mp3');
 }
 
@@ -44,19 +48,74 @@ var powerupX;
 var blaster;
 var playerDeath;
 var powerGain;
+var powerDown;
 var bgm1;
+var gamename;
+var spaceship;
 
 function create(){
+  bgmusic = game.add.audio('loading_audio');
+  bgmusic.play();
+
+  starfield = game.add.tileSprite(0, 0, 800, 600, 'starfield');
+
+  spaceship = game.add.sprite(150,550, 'spaceship');
+  game.physics.enable(spaceship, Phaser.Physics.ARCADE);
+  gamename = game.add.sprite(120,1000, 'gamename');
+  game.physics.enable(gamename, Phaser.Physics.ARCADE);
+
+  game.input.onDown.addOnce(startGame, this);
+}
+
+function update(){
+  //  Scroll the background
+  starfield.tilePosition.y += 2;
+  spaceship.body.velocity.y -= 0.1;
+  if( gamename.y < 180 ){
+    gamename.body.velocity.y = 0;
+  }else{
+    gamename.body.velocity.y -= 0.1;
+  }
+    if (typeof player !== 'undefined') {
+      if (player.alive){
+          handleShipEvents();
+
+          //  Firing?
+          if (fireButton.isDown){
+              weapon.fire();
+          }
+
+          if (game.time.now > firingTimer){
+              enemyFires();
+          }
+
+          //  Run collision
+          game.physics.arcade.collide(weapon.bullets, aliens, collisionHandler)
+          game.physics.arcade.overlap(weapon.bullets, enemyBullets, collisionHandler, null, this);
+          game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
+          game.physics.arcade.overlap(powerupS, player, powerCollisionHandlerS, null, this);
+          game.physics.arcade.overlap(powerupP, player, powerCollisionHandlerP, null, this);
+          game.physics.arcade.overlap(powerupX, player, powerCollisionHandlerX, null, this);
+          game.physics.arcade.overlap(aliens, player, enemyPlayerCollision, null, this);
+      }
+    }
+}
+
+function render() {}
+
+function startGame(){
     game.world.setBounds(0, 0, 800, 600);
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    //  The scrolling starfield background
-    starfield = game.add.tileSprite(0, 0, 800, 600, 'starfield');
+    spaceship.kill();
+    gamename.kill();
+    bgmusic.stop();
 
     // added audio
-    blaster = game.add.audio('blast');
+    blaster = game.add.sound('blast', 0.1);
     playerDeath = game.add.audio('playerDeath');
     powerGain = game.add.audio('powerGain');
+    powerDown = game.add.audio('powerDown');
     bgm1 = game.add.audio('bgm1');
     bgm1.play();
 
@@ -163,35 +222,6 @@ function descend() {
     aliens.y += 10;
 }
 
-function update(){
-    //  Scroll the background
-    starfield.tilePosition.y += 2;
-
-    if (player.alive){
-        handleShipEvents();
-
-        //  Firing?
-        if (fireButton.isDown){
-            weapon.fire();
-            blaster.play();
-        }
-
-        if (game.time.now > firingTimer){
-            enemyFires();
-        }
-
-        //  Run collision
-        game.physics.arcade.collide(weapon.bullets, aliens, collisionHandler)
-        game.physics.arcade.overlap(weapon.bullets, enemyBullets, collisionHandler, null, this);
-        game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
-        game.physics.arcade.overlap(powerupS, player, powerCollisionHandlerS, null, this);
-        game.physics.arcade.overlap(powerupP, player, powerCollisionHandlerP, null, this);
-        game.physics.arcade.overlap(powerupX, player, powerCollisionHandlerX, null, this);
-        game.physics.arcade.overlap(aliens, player, enemyPlayerCollision, null, this);
-    }
-}
-
-function render() {}
 
 function renderPowerLevel(){
   powerLevel='';
@@ -293,8 +323,8 @@ function enemyHitsPlayer (player,bullet) {
 
 function isPlayerDead(player){
   // When the player dies
-  playerDeath.play();
   if (playerLife < 1){
+      playerDeath.play();
       player.kill();
       enemyBullets.callAll('kill');
 
@@ -303,6 +333,8 @@ function isPlayerDead(player){
 
       //the "click to restart" handler
       game.input.onTap.addOnce(restart,this);
+  }else{
+    powerDown.play();
   }
 }
 
