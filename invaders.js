@@ -112,7 +112,7 @@ function startGame(){
     bgmusic.stop();
 
     // added audio
-    blaster = game.add.sound('blast', 0.1);
+    blaster = game.add.sound('blast', 0.3);
     playerDeath = game.add.audio('playerDeath');
     powerGain = game.add.audio('powerGain');
     powerDown = game.add.audio('powerDown');
@@ -138,26 +138,6 @@ function startGame(){
     enemyBullets.setAll('outOfBoundsKill', true);
     enemyBullets.setAll('checkWorldBounds', true);
 
-    //  The baddies!
-    aliens = game.add.group();
-    aliens.enableBody = true;
-    aliens.physicsBodyType = Phaser.Physics.ARCADE;
-    game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
-    game.time.events.repeat(Phaser.Timer.SECOND * 20 , 2, createBigAliens, this);
-
-    powerupS = game.add.group();
-    powerupS.enableBody = true;
-    game.time.events.repeat(Phaser.Timer.SECOND * 5 , 10, addPowerupS, this);
-
-    powerupP = game.add.group();
-    powerupP.enableBody = true;
-    game.time.events.repeat(Phaser.Timer.SECOND * 10 , 10, addPowerupP, this);
-
-    powerupX = game.add.group();
-    powerupX.enableBody = true;
-    game.time.events.repeat(Phaser.Timer.SECOND * 15 , 10, addPowerupX, this);
-
-
     //  The score
     scoreString = 'Score : ';
     scoreText = game.add.text(1, 1, scoreString + score, { font: '34px Arial', fill: '#fff' });
@@ -177,6 +157,30 @@ function startGame(){
     //  And some controls to play the game with
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+
+    aliens = game.add.group();
+    aliens.enableBody = true;
+    aliens.physicsBodyType = Phaser.Physics.ARCADE;
+
+    game.input.onDown.addOnce(addBaddies, this);
+}
+
+
+function addBaddies(){
+  game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
+  game.time.events.repeat(Phaser.Timer.SECOND * 20 , 2, createBigAliens, this);
+
+  powerupS = game.add.group();
+  powerupS.enableBody = true;
+  game.time.events.repeat(Phaser.Timer.SECOND * 5 , 10, addPowerupS, this);
+
+  powerupP = game.add.group();
+  powerupP.enableBody = true;
+  game.time.events.repeat(Phaser.Timer.SECOND * 10 , 10, addPowerupP, this);
+
+  powerupX = game.add.group();
+  powerupX.enableBody = true;
+  game.time.events.repeat(Phaser.Timer.SECOND * 15 , 10, addPowerupX, this);
 }
 
 function addPowerupS(){
