@@ -4,8 +4,8 @@ function preload(){
     game.load.spritesheet('bullet', 'assets/rgblaser.png', 4, 4);
     game.load.image('enemyBullet', 'assets/enemy-bullet.png');
     game.load.image('bullet195', 'assets/bullet195.png');
-    // game.load.spritesheet('invader', 'assets/invader32x32x4.png', 32, 32);
     game.load.image('invader', 'assets/shmup-baddie21.png');
+    game.load.image('bigInvader', 'assets/bigA.png');
     game.load.image('ship', 'assets/ak46.png');
     game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
     game.load.image('starfield', 'assets/starfield1.png');
@@ -78,6 +78,7 @@ function create(){
     aliens.enableBody = true;
     aliens.physicsBodyType = Phaser.Physics.ARCADE;
     game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
+    game.time.events.repeat(Phaser.Timer.SECOND * 20 , 2, createBigAliens, this);
     powerUps = game.add.group();
     powerUps.enableBody = true;
     game.time.events.repeat(Phaser.Timer.SECOND * 10 , 10, addPowerUp, this);
