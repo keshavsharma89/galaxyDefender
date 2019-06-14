@@ -1,8 +1,6 @@
-
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
-function preload() {
-
+function preload(){
     game.load.spritesheet('bullet', 'assets/rgblaser.png', 4, 4);
     game.load.image('enemyBullet', 'assets/enemy-bullet.png');
     game.load.image('bullet195', 'assets/bullet195.png');
@@ -15,7 +13,7 @@ function preload() {
     game.load.audio('blast', 'assets/SoundEffects/blaster.mp3');
     game.load.audio('playerDeath', 'assets/SoundEffects/menu_select.mp3');
     game.load.audio('powerGain', 'assets/SoundEffects/pickup.WAV');
-
+    game.load.audio('bgm1', 'assets/SoundEffects/music/bgm1.mp3');
 }
 
 var player;
@@ -39,18 +37,21 @@ var powerUps;
 var blaster;
 var playerDeath;
 var powerGain;
+var bgm1;
 
-function create() {
+function create(){
     game.world.setBounds(0, 0, 800, 600);
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     //  The scrolling starfield background
     starfield = game.add.tileSprite(0, 0, 800, 600, 'starfield');
-    // added audio
 
+    // added audio
     blaster = game.add.audio('blast');
     playerDeath = game.add.audio('playerDeath');
     powerGain = game.add.audio('powerGain');
+    bgm1 = game.add.audio('bgm1');
+    bgm1.play();
 
     //  The player ship
     player = game.add.sprite(400, 500, 'ship');
@@ -71,35 +72,26 @@ function create() {
     enemyBullets.setAll('outOfBoundsKill', true);
     enemyBullets.setAll('checkWorldBounds', true);
 
-
     //  The baddies!
     aliens = game.add.group();
     aliens.enableBody = true;
     aliens.physicsBodyType = Phaser.Physics.ARCADE;
     game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
-
-
-
     powerUps = game.add.group();
-     powerUps.enableBody = true;
-       game.time.events.repeat(Phaser.Timer.SECOND * 10 , 10, addPowerUp, this);
-
+    powerUps.enableBody = true;
+    game.time.events.repeat(Phaser.Timer.SECOND * 10 , 10, addPowerUp, this);
 
 
     //  The score
     scoreString = 'Score : ';
     scoreText = game.add.text(1, 1, scoreString + score, { font: '34px Arial', fill: '#fff' });
-
-    powerLevelText=game.add.text(1, 565, '', { font: '34px Arial', fill: '#fff' });
+    powerLevelText=game.add.text(1, 565, '', { font: '34px Arial', fill: '#f00' });
     renderPowerLevel();
-
-
 
     //  Text
     stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
     stateText.anchor.setTo(0.5, 0.5);
     stateText.visible = false;
-
 
     //  An explosion pool
     explosions = game.add.group();
@@ -109,18 +101,15 @@ function create() {
     //  And some controls to play the game with
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-
 }
 
-function addPowerUp()
-{
+function addPowerUp(){
        var s = powerUps.create(game.world.randomX, game.world.randomY, 'powerup');
        s.name = 'alien' + s;
        s.body.collideWorldBounds = false;
        s.body.bounce.setTo(0.8, 0.8);
        s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
        s.events.onOutOfBounds.add(killPowerUp, this);
-  
 }
 
 function killPowerUp(p) {
@@ -128,67 +117,60 @@ function killPowerUp(p) {
 }
 
 function setupInvader (invader) {
-
     invader.anchor.x = 0.5;
     invader.anchor.y = 0.5;
     invader.animations.add('kaboom');
-
 }
 
 function descend() {
-
     aliens.y += 10;
-
 }
 
-function update() {
-
+function update(){
     //  Scroll the background
     starfield.tilePosition.y += 2;
 
-    if (player.alive)
-    {
+    if (player.alive){
         handleShipEvents();
 
         //  Firing?
-        if (fireButton.isDown)
-        {
+        if (fireButton.isDown){
             weapon.fire();
             blaster.play();
         }
 
-        if (game.time.now > firingTimer)
-        {
+        if (game.time.now > firingTimer){
             enemyFires();
         }
 
         //  Run collision
-
         game.physics.arcade.collide(weapon.bullets, aliens, collisionHandler)
         game.physics.arcade.overlap(weapon.bullets, enemyBullets, collisionHandler, null, this);
         game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
         game.physics.arcade.overlap(powerUps, player, powerCollisionHandler, null, this);
         game.physics.arcade.overlap(aliens, player, enemyPlayerCollision, null, this);
-
-
     }
-
 }
 
-function render() {
+function render() {}
 
-}
-
-function renderPowerLevel() {
+function renderPowerLevel(){
   powerLevel='';
   for(i=0; i<playerLife ; i++){
     powerLevel +='I'
   }
   powerLevelText.text = powerLevel;
+  if(playerLife<20){
+    powerLevelText.style.fill = '#FF0000';
+  }else if (playerLife<50) {
+    powerLevelText.style.fill = '#e1c102';
+  }else {
+    powerLevelText.style.fill = '#00FF00';
+  }
+
 }
 
-function collisionHandler (bullet, alien) {
-
+function collisionHandler (bullet, alien){
     //  When a bullet hits an alien we kill them both
     bullet.kill();
     alien.kill();
@@ -202,8 +184,7 @@ function collisionHandler (bullet, alien) {
     explosion.reset(alien.body.x, alien.body.y);
     explosion.play('kaboom', 30, false, true);
 
-    if (aliens.countLiving() == 0)
-    {
+    if (aliens.countLiving() == 0){
         score += 1000;
         scoreText.text = scoreString + score;
 
@@ -214,7 +195,6 @@ function collisionHandler (bullet, alien) {
         //the "click to restart" handler
         game.input.onTap.addOnce(restart,this);
     }
-
 }
 
 
@@ -235,7 +215,6 @@ function enemyPlayerCollision(player, enemy) {
 
 
 function powerCollisionHandler (player, powerUp) {
-
     //  When a powerUp hits player we change bullet
     powerUp.kill();
     powerGain.play();
@@ -245,7 +224,6 @@ function powerCollisionHandler (player, powerUp) {
 }
 
 function enemyHitsPlayer (player,bullet) {
-
     bullet.kill();
     playerLife -= 20
     renderPowerLevel()
@@ -256,16 +234,12 @@ function enemyHitsPlayer (player,bullet) {
     explosion.play('kaboom', 30, false, true);
 
     isPlayerDead(player);
-
-
-
 }
 
 function isPlayerDead(player){
   // When the player dies
   playerDeath.play();
-  if (playerLife < 1)
-  {
+  if (playerLife < 1){
       player.kill();
       enemyBullets.callAll('kill');
 
@@ -278,22 +252,14 @@ function isPlayerDead(player){
 }
 
 function enemyFires () {
-
     //  Grab the first bullet we can from the pool
     enemyBullet = enemyBullets.getFirstExists(false);
-
     livingEnemies.length=0;
 
-    aliens.forEachAlive(function(alien){
+    // put every living enemy in an array
+    aliens.forEachAlive(function(alien){ livingEnemies.push(alien); });
 
-        // put every living enemy in an array
-        livingEnemies.push(alien);
-    });
-
-
-    if (enemyBullet && livingEnemies.length > 0)
-    {
-
+    if (enemyBullet && livingEnemies.length > 0){
         var random=game.rnd.integerInRange(0,livingEnemies.length-1);
 
         // randomly select one of them
@@ -304,25 +270,18 @@ function enemyFires () {
         game.physics.arcade.moveToObject(enemyBullet,player,120);
         firingTimer = game.time.now + 2000;
     }
-
 }
 
 
 function resetBullet (bullet) {
-
     //  Called if the bullet goes out of the screen
     bullet.kill();
-
 }
 
-function restart () {
-
-    //  A new level starts
-
+function restart(){
     //resets the life count
     playerLife=85;
     renderPowerLevel()
-
 
     //  And brings the aliens back from the dead :)
     aliens.removeAll();
@@ -332,5 +291,4 @@ function restart () {
     player.revive();
     //hides the text
     stateText.visible = false;
-
 }
