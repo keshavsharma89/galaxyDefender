@@ -167,8 +167,8 @@ function startGame(){
 
 
 function addBaddies(){
-  game.time.events.repeat(Phaser.Timer.SECOND * 2 , 10, createAliens, this);
-  game.time.events.repeat(Phaser.Timer.SECOND * 20 , 2, createBigAliens, this);
+  game.time.events.repeat(Phaser.Timer.SECOND * 5 , 10, createAliens, this);
+  game.time.events.repeat(Phaser.Timer.SECOND * 15 , 2, createBigAliens, this);
 
   powerupS = game.add.group();
   powerupS.enableBody = true;
