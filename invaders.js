@@ -15,6 +15,8 @@ function preload() {
     game.load.audio('blast', 'assets/SoundEffects/blaster.mp3');
     game.load.audio('playerDeath', 'assets/SoundEffects/menu_select.mp3');
     game.load.audio('powerGain', 'assets/SoundEffects/pickup.WAV');
+    game.load.audio('bgm1', 'assets/SoundEffects/music/bgm1.mp3');
+
 
 }
 
@@ -39,6 +41,7 @@ var powerUps;
 var blaster;
 var playerDeath;
 var powerGain;
+var bgm1;
 
 function create() {
     game.world.setBounds(0, 0, 800, 600);
@@ -51,6 +54,8 @@ function create() {
     blaster = game.add.audio('blast');
     playerDeath = game.add.audio('playerDeath');
     powerGain = game.add.audio('powerGain');
+    bgm1 = game.add.audio('bgm1');
+    bgm1.play();
 
     //  The player ship
     player = game.add.sprite(400, 500, 'ship');
