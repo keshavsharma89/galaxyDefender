@@ -23,10 +23,10 @@ function handleShipEvents () {
 
   if (cursors.up.isDown)
   {
-      player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle, 300));
+      player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle, 200));
   }
   else if (cursors.down.isDown)
   {
-      player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle, -100));
+      player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle, -200));
   }
 }
