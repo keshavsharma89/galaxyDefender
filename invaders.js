@@ -4,25 +4,25 @@ function preload(){
     game.load.spritesheet('bullet', 'assets/rgblaser.png', 4, 4);
     game.load.image('enemyBullet', 'assets/enemy-bullet.png');
     game.load.image('spaceship', 'assets/spaceship.png');
-    game.load.image('gamename', 'assets/loading_game.png');
+    game.load.image('gamename', 'assets/galaxy_defenders.png');
     game.load.audio('loading_audio', 'assets/SoundEffects/music/loading.mp3');
     game.load.image('bulletS', 'assets/bulletS.png');
     game.load.image('bulletP', 'assets/bulletP.png');
     game.load.image('bulletX', 'assets/bulletX.png');
-    game.load.image('powerupP', 'assets/powerupP.png');
-    game.load.image('powerupS', 'assets/powerupS.png');
-    game.load.image('powerupX', 'assets/powerupX.png');
+    game.load.image('powerupP', 'assets/powerUP1.png');
+    game.load.image('powerupS', 'assets/powerUP2.png');
+    game.load.image('powerupX', 'assets/powerUP3.png');
     game.load.image('invader', 'assets/shmup-baddie21.png');
-    game.load.image('bigInvader', 'assets/bigA.png');
+    game.load.image('bigInvader', 'assets/bigB.png');
     game.load.image('ship', 'assets/ak46.png');
     game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
     game.load.image('starfield', 'assets/starfield1.png');
-    game.load.image('background', 'assets/background2.png');
     game.load.audio('blast', 'assets/SoundEffects/orangeshell.ogg');
     game.load.audio('playerDeath', 'assets/SoundEffects/menu_select.mp3');
     game.load.audio('powerGain', 'assets/SoundEffects/pickup.wav');
     game.load.audio('powerDown', 'assets/SoundEffects/powerdown.ogg');
     game.load.audio('bgm1', 'assets/SoundEffects/music/bgm1.mp3');
+    game.load.audio('bgm2', 'assets/SoundEffects/music/bgm2.mp3');
 }
 
 var player;
@@ -50,6 +50,7 @@ var playerDeath;
 var powerGain;
 var powerDown;
 var bgm1;
+var bgm2;
 var gamename;
 var spaceship;
 
@@ -61,7 +62,7 @@ function create(){
 
   spaceship = game.add.sprite(150,550, 'spaceship');
   game.physics.enable(spaceship, Phaser.Physics.ARCADE);
-  gamename = game.add.sprite(120,1000, 'gamename');
+  gamename = game.add.sprite(10,1000, 'gamename');
   game.physics.enable(gamename, Phaser.Physics.ARCADE);
 
   game.input.onDown.addOnce(startGame, this);
@@ -167,6 +168,9 @@ function startGame(){
 
 
 function addBaddies(){
+  bgm1.stop();
+  bgm2 = game.add.audio('bgm2');
+  bgm2.play();
   game.time.events.repeat(Phaser.Timer.SECOND * 5 , 10, createAliens, this);
   game.time.events.repeat(Phaser.Timer.SECOND * 15 , 2, createBigAliens, this);
 
