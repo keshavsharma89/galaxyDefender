@@ -85,7 +85,7 @@ function create(){
     //  The score
     scoreString = 'Score : ';
     scoreText = game.add.text(1, 1, scoreString + score, { font: '34px Arial', fill: '#fff' });
-    powerLevelText=game.add.text(1, 565, '', { font: '34px Arial', fill: '#fff' });
+    powerLevelText=game.add.text(1, 565, '', { font: '34px Arial', fill: '#f00' });
     renderPowerLevel();
 
     //  Text
@@ -160,6 +160,14 @@ function renderPowerLevel(){
     powerLevel +='I'
   }
   powerLevelText.text = powerLevel;
+  if(playerLife<20){
+    powerLevelText.style.fill = '#FF0000';
+  }else if (playerLife<50) {
+    powerLevelText.style.fill = '#f6d406';
+  }else {
+    powerLevelText.style.fill = '#00FF00';
+  }
+
 }
 
 function collisionHandler (bullet, alien){
