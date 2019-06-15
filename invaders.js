@@ -17,6 +17,7 @@ function preload(){
     game.load.image('ship', 'assets/ak46.png');
     game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
     game.load.image('starfield', 'assets/starfield1.png');
+    game.load.image('won', 'assets/won.png');
     game.load.audio('blast', 'assets/SoundEffects/orangeshell.ogg');
     game.load.audio('playerDeath', 'assets/SoundEffects/menu_select.mp3');
     game.load.audio('powerGain', 'assets/SoundEffects/pickup.wav');
@@ -53,6 +54,7 @@ var bgm1;
 var bgm2;
 var gamename;
 var spaceship;
+var won;
 
 function create(){
   bgmusic = game.add.audio('loading_audio');
@@ -124,6 +126,9 @@ function startGame(){
     player = game.add.sprite(400, 500, 'ship');
     createShip();
 
+    won = game.add.sprite(120, 200, 'won');
+    game.physics.enable(won, Phaser.Physics.ARCADE);
+    won.visible = false;
     // weapon as bullets
     //  Creates 30 bullets, using the 'bullet' graphic
     weapon = game.add.weapon(40, 'bullet');
@@ -141,7 +146,7 @@ function startGame(){
 
     //  The score
     scoreString = 'Score : ';
-    scoreText = game.add.text(1, 1, scoreString + score, { font: '34px Arial', fill: '#fff' });
+    scoreText = game.add.text(10, 50, scoreString + score, { font: '34px Arial', fill: '#fff' });
     powerLevelText=game.add.text(1, 565, '', { font: '34px Arial', fill: '#f00' });
     renderPowerLevel();
 
@@ -266,9 +271,8 @@ function collisionHandler (bullet, alien){
         scoreText.text = scoreString + score;
 
         enemyBullets.callAll('kill',this);
-        stateText.text = " You Won, \n Click to restart";
-        stateText.visible = true;
-
+        won.visible = true;
+        
         //the "click to restart" handler
         game.input.onTap.addOnce(restart,this);
     }
@@ -376,7 +380,7 @@ function resetBullet (bullet) {
 function restart(){
     //resets the life count
     playerLife=85;
-    renderPowerLevel()
+    renderPowerLevel();
 
     //  And brings the aliens back from the dead :)
     aliens.removeAll();
@@ -384,6 +388,7 @@ function restart(){
 
     //revives the player
     player.revive();
+    won.visible = false;
     //hides the text
     stateText.visible = false;
 }
