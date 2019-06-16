@@ -2,6 +2,7 @@ function createShip () {
   player.anchor.setTo(0.5, 0.5);
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.collideWorldBounds = true;
+  player.angle = -90;
   player.body.bounce.set(0.8);
   player.body.allowRotation = true;
   player.body.immovable = true;
