@@ -32,6 +32,6 @@ weapon.onFire.add(function(){
 //  Tell the Weapon to track the 'player' Sprite
 //  With no offsets from the position
 //  But the 'true' argument tells the weapon to track sprite rotation
-weapon.trackSprite(player, 0, 0, true);
+weapon.trackSprite(player, 20, 0, true);
 
 }
