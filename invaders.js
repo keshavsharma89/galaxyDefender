@@ -1,5 +1,6 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
+
 function preload(){
     game.load.spritesheet('bullet', 'assets/rgblaser.png', 4, 4);
     game.load.image('enemyBullet', 'assets/enemy-bullet.png');
@@ -18,45 +19,31 @@ function preload(){
     game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
     game.load.image('starfield', 'assets/starfield1.png');
     game.load.image('won', 'assets/won.png');
+    game.load.image('gameOver', 'assets/gameover.gif');
     game.load.audio('blast', 'assets/SoundEffects/orangeshell.ogg');
     game.load.audio('playerDeath', 'assets/SoundEffects/menu_select.mp3');
     game.load.audio('powerGain', 'assets/SoundEffects/pickup.wav');
     game.load.audio('powerDown', 'assets/SoundEffects/powerdown.ogg');
     game.load.audio('bgm1', 'assets/SoundEffects/music/bgm1.mp3');
+    game.load.audio('gameOverAudio', 'assets/SoundEffects/go.mp3');
     game.load.audio('bgm2', 'assets/SoundEffects/music/bgm2.mp3');
 }
 
-var player;
-var aliens;
-var weapon;
+
 var bulletTime = 0;
-var cursors;
-var fireButton;
-var explosions;
-var starfield;
 var score = 0;
 var scoreString = '';
-var scoreText;
 var playerLife = 85;
-var powerLevelText;
-var enemyBullet;
 var firingTimer = 0;
-var stateText;
 var livingEnemies = [];
-var powerupS;
-var powerupP;
-var powerupX;
-var blaster;
-var playerDeath;
-var powerGain;
-var powerDown;
-var bgm1;
-var bgm2;
-var gamename;
-var spaceship;
-var won;
+var haltGamePlay = false;
+
+var player, aliens, weapon, cursors, fireButton, explosions, starfield, scoreText, powerLevelText, enemyBullet, stateText, powerupS, powerupP, powerupX, blaster, playerDeath, powerGain, powerDown, bgm1, bgm2, gamename, spaceship, won, gameOver, gameOverAudio;
 
 function create(){
+  game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+  game.scale.startFullScreen(true);
+
   bgmusic = game.add.audio('loading_audio');
   bgmusic.play();
 
@@ -119,6 +106,7 @@ function startGame(){
     playerDeath = game.add.audio('playerDeath');
     powerGain = game.add.audio('powerGain');
     powerDown = game.add.audio('powerDown');
+    gameOverAudio = game.add.audio('gameOverAudio', 20.0);
     bgm1 = game.add.audio('bgm1');
     bgm1.play();
 
@@ -129,6 +117,10 @@ function startGame(){
     won = game.add.sprite(120, 200, 'won');
     game.physics.enable(won, Phaser.Physics.ARCADE);
     won.visible = false;
+
+    gameOver = game.add.sprite(15, 200, 'gameOver');
+    game.physics.enable(gameOver, Phaser.Physics.ARCADE);
+    gameOver.visible = false;
     // weapon as bullets
     //  Creates 30 bullets, using the 'bullet' graphic
     weapon = game.add.weapon(40, 'bullet');
@@ -138,9 +130,12 @@ function startGame(){
     enemyBullets = game.add.group();
     enemyBullets.enableBody = true;
     enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
-    enemyBullets.createMultiple(30, 'enemyBullet');
-    enemyBullets.setAll('anchor.x', 0.5);
-    enemyBullets.setAll('anchor.y', 1);
+    if(!haltGamePlay){
+      enemyBullets.createMultiple(30, 'enemyBullet');
+      enemyBullets.setAll('anchor.x', 0.5);
+      enemyBullets.setAll('anchor.y', 1);
+    }
+
     enemyBullets.setAll('outOfBoundsKill', true);
     enemyBullets.setAll('checkWorldBounds', true);
 
@@ -151,9 +146,9 @@ function startGame(){
     renderPowerLevel();
 
     //  Text
-    stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
+    stateText = game.add.text(game.world.centerX, 450,'Click to start alien attack!!', { font: '30px Arial', fill: '#fff' });
     stateText.anchor.setTo(0.5, 0.5);
-    stateText.visible = false;
+    stateText.visible = true;
 
     //  An explosion pool
     explosions = game.add.group();
@@ -192,33 +187,40 @@ function addBaddies(){
   game.time.events.repeat(Phaser.Timer.SECOND * 15 , 2, createBigAliens, this);
 
   weapon = game.add.weapon(40, 'bullet');
+  createWeapon();
+
+  stateText.visible = false;
 }
 
 function addPowerupS(){
-       // var s = powerupS.create(game.world.randomX, game.world.randomY, 'powerupS');
-       var s = powerupS.create(game.world.randomX, 0, 'powerupS');
-       s.name = 'alien' + s;
-       s.body.collideWorldBounds = false;
-       s.body.bounce.setTo(0.8, 0.8);
-       s.body.velocity.y = game.rnd.between(25, 100);
-       s.events.onOutOfBounds.add(killPowerUp, this);
-
+  if(!haltGamePlay){
+    var s = powerupS.create(game.world.randomX, 0, 'powerupS');
+    s.name = 'alien' + s;
+    s.body.collideWorldBounds = false;
+    s.body.bounce.setTo(0.8, 0.8);
+    s.body.velocity.y = game.rnd.between(25, 100);
+    s.events.onOutOfBounds.add(killPowerUp, this);
+  }
 }
 function addPowerupP(){
-       var s = powerupP.create(game.world.randomX, 0, 'powerupP');
-       s.name = 'alien' + s;
-       s.body.collideWorldBounds = false;
-       s.body.bounce.setTo(0.8, 0.8);
-       s.body.velocity.y = game.rnd.between(25, 100);
-       s.events.onOutOfBounds.add(killPowerUp, this);
+  if(!haltGamePlay){
+    var s = powerupP.create(game.world.randomX, 0, 'powerupP');
+    s.name = 'alien' + s;
+    s.body.collideWorldBounds = false;
+    s.body.bounce.setTo(0.8, 0.8);
+    s.body.velocity.y = game.rnd.between(25, 100);
+    s.events.onOutOfBounds.add(killPowerUp, this);
+  }
 }
 function addPowerupX(){
-       var s = powerupX.create(game.world.randomX, 0, 'powerupX');
-       s.name = 'alien' + s;
-       s.body.collideWorldBounds = false;
-       s.body.bounce.setTo(0.8, 0.8);
-       s.body.velocity.y = game.rnd.between(25, 100);
-       s.events.onOutOfBounds.add(killPowerUp, this);
+  if(!haltGamePlay){
+    var s = powerupX.create(game.world.randomX, 0, 'powerupX');
+    s.name = 'alien' + s;
+    s.body.collideWorldBounds = false;
+    s.body.bounce.setTo(0.8, 0.8);
+    s.body.velocity.y = game.rnd.between(25, 100);
+    s.events.onOutOfBounds.add(killPowerUp, this);
+  }
 }
 
 function killPowerUp(p) {
@@ -226,13 +228,13 @@ function killPowerUp(p) {
 }
 
 function setupInvader (invader) {
-    invader.anchor.x = 0.5;
-    invader.anchor.y = 0.5;
-    invader.animations.add('kaboom');
+  invader.anchor.x = 0.5;
+  invader.anchor.y = 0.5;
+  invader.animations.add('kaboom');
 }
 
 function descend() {
-    aliens.y += 10;
+  aliens.y += 10;
 }
 
 
@@ -249,7 +251,6 @@ function renderPowerLevel(){
   }else {
     powerLevelText.style.fill = '#00FF00';
   }
-
 }
 
 function collisionHandler (bullet, alien){
@@ -270,9 +271,11 @@ function collisionHandler (bullet, alien){
         score += 1000;
         scoreText.text = scoreString + score;
 
-        enemyBullets.callAll('kill',this);
+        killEverything()
+
+
         won.visible = true;
-        
+
         //the "click to restart" handler
         game.input.onTap.addOnce(restart,this);
     }
@@ -280,6 +283,14 @@ function collisionHandler (bullet, alien){
 
 
 
+function killEverything() {
+  enemyBullets.callAll('kill');
+  aliens.callAll('kill');
+  powerupP.callAll('kill');
+  powerupS.callAll('kill');
+  powerupX.callAll('kill');
+  haltGamePlay = true;
+}
 function enemyPlayerCollision(player, enemy) {
   enemy.kill();
 
@@ -337,11 +348,18 @@ function isPlayerDead(player){
   // When the player dies
   if (playerLife < 1){
       playerDeath.play();
+
       player.kill();
       enemyBullets.callAll('kill');
+      aliens.callAll('kill');
 
-      stateText.text=" GAME OVER \n Click to restart";
+      stateText.text="Click to restart";
       stateText.visible = true;
+
+      gameOver.visible = true;
+      killEverything()
+      gameOverAudio.play();
+
 
       //the "click to restart" handler
       game.input.onTap.addOnce(restart,this);
@@ -381,14 +399,20 @@ function restart(){
     //resets the life count
     playerLife=85;
     renderPowerLevel();
+    haltGamePlay = false;
+
+    //revives the player
+    player.revive();
 
     //  And brings the aliens back from the dead :)
     aliens.removeAll();
     createAliens();
 
-    //revives the player
-    player.revive();
-    won.visible = false;
+
+
     //hides the text
+    won.visible = false;
+    gameOver.visible = false;
     stateText.visible = false;
+    bgm1.play();
 }
