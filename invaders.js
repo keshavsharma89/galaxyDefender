@@ -163,6 +163,18 @@ function startGame(){
     aliens.enableBody = true;
     aliens.physicsBodyType = Phaser.Physics.ARCADE;
 
+    powerupS = game.add.group();
+    powerupS.enableBody = true;
+    game.time.events.repeat(Phaser.Timer.SECOND * 5 , 10, addPowerupS, this);
+
+    powerupP = game.add.group();
+    powerupP.enableBody = true;
+    game.time.events.repeat(Phaser.Timer.SECOND * 10 , 10, addPowerupP, this);
+
+    powerupX = game.add.group();
+    powerupX.enableBody = true;
+    game.time.events.repeat(Phaser.Timer.SECOND * 15 , 10, addPowerupX, this);
+
     game.input.onDown.addOnce(addBaddies, this);
 }
 
@@ -174,17 +186,7 @@ function addBaddies(){
   game.time.events.repeat(Phaser.Timer.SECOND * 5 , 10, createAliens, this);
   game.time.events.repeat(Phaser.Timer.SECOND * 15 , 2, createBigAliens, this);
 
-  powerupS = game.add.group();
-  powerupS.enableBody = true;
-  game.time.events.repeat(Phaser.Timer.SECOND * 5 , 10, addPowerupS, this);
-
-  powerupP = game.add.group();
-  powerupP.enableBody = true;
-  game.time.events.repeat(Phaser.Timer.SECOND * 10 , 10, addPowerupP, this);
-
-  powerupX = game.add.group();
-  powerupX.enableBody = true;
-  game.time.events.repeat(Phaser.Timer.SECOND * 15 , 10, addPowerupX, this);
+  weapon = game.add.weapon(40, 'bullet');
 }
 
 function addPowerupS(){
@@ -193,8 +195,6 @@ function addPowerupS(){
        s.name = 'alien' + s;
        s.body.collideWorldBounds = false;
        s.body.bounce.setTo(0.8, 0.8);
-       // s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
-       // s.body.velocity.setTo(45,90);
        s.body.velocity.y = game.rnd.between(25, 100);
        s.events.onOutOfBounds.add(killPowerUp, this);
 
