@@ -42,7 +42,7 @@ var player, aliens, weapon, cursors, fireButton, explosions, starfield, scoreTex
 
 function create(){
   game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
-  game.scale.startFullScreen(true);
+  game.scale.startFullScreen(false);
 
   bgmusic = game.add.audio('loading_audio');
   bgmusic.play();
@@ -108,7 +108,7 @@ function startGame(){
     powerDown = game.add.audio('powerDown');
     gameOverAudio = game.add.audio('gameOverAudio', 20.0);
     bgm1 = game.add.audio('bgm1');
-    bgm1.play();
+    bgm1.loopFull();
 
     //  The player ship
     player = game.add.sprite(400, 500, 'ship');
@@ -141,7 +141,7 @@ function startGame(){
 
     //  The score
     scoreString = 'Score : ';
-    scoreText = game.add.text(10, 50, scoreString + score, { font: '34px Arial', fill: '#fff' });
+    scoreText = game.add.text(10, 20, scoreString + score, { font: '34px Arial', fill: '#fff' });
     powerLevelText=game.add.text(1, 565, '', { font: '34px Arial', fill: '#f00' });
     renderPowerLevel();
 
@@ -182,9 +182,9 @@ function startGame(){
 function addBaddies(){
   bgm1.stop();
   bgm2 = game.add.audio('bgm2');
-  bgm2.play();
+  bgm2.loopFull();
   game.time.events.repeat(Phaser.Timer.SECOND * 5 , 10, createAliens, this);
-  game.time.events.repeat(Phaser.Timer.SECOND * 15 , 2, createBigAliens, this);
+  game.time.events.repeat(Phaser.Timer.SECOND * 10 , 3, createBigAliens, this);
 
   weapon = game.add.weapon(40, 'bullet');
   createWeapon();
@@ -271,7 +271,7 @@ function collisionHandler (bullet, alien){
         score += 1000;
         scoreText.text = scoreString + score;
 
-        killEverything()
+        killEverything();
 
 
         won.visible = true;
@@ -407,12 +407,10 @@ function restart(){
     //  And brings the aliens back from the dead :)
     aliens.removeAll();
     createAliens();
-
-
+    createBigAliens();
 
     //hides the text
     won.visible = false;
     gameOver.visible = false;
     stateText.visible = false;
-    bgm1.play();
 }
