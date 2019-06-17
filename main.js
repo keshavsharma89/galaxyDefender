@@ -41,8 +41,8 @@ var haltGamePlay = false;
 var player, aliens, weapon, cursors, fireButton, explosions, starfield, scoreText, powerLevelText, enemyBullet, stateText, powerupS, powerupP, powerupX, blaster, playerDeath, powerGain, powerDown, bgm1, bgm2, gamename, spaceship, won, gameOver, gameOverAudio;
 
 function create(){
-  game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
-  game.scale.startFullScreen(false);
+  //game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+  //game.scale.startFullScreen(false);
 
   bgmusic = game.add.audio('loading_audio');
   bgmusic.play();
